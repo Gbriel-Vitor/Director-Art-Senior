@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Bros | Case Study</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .case-header {
+            padding-top: 15vh;
+            text-align: center;
+        }
+
+        .case-image-wrapper {
+            max-width: 1000px;
+            margin: 4rem auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .case-image-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 2.2rem;
+            left: 4rem;
+            z-index: 200;
+            font-size: var(--step-0);
+            text-decoration: none;
+            color: white;
+            mix-blend-mode: difference;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    <a href="index.html" class="back-btn magnetic" data-cursor="Back">BACK</a>
+
+    <main id="smooth-wrapper">
+        <div id="smooth-content">
+            <section class="section case-header">
+                <h1 class="hero-title" style="font-size: var(--step-5)">
+                    <span class="line"><span class="word">Pizza</span></span>
+                    <span class="line"><span class="word">Bros</span></span>
+                </h1>
+                <p style="margin-top: 2rem; color: #888; font-size: var(--step-1);">Identity</p>
+                <div class="case-image-wrapper">
+                    <img src="assets/pizza_bros_1772659408670.png" alt="Pizza Bros">
+                </div>
+                <div
+                    style="max-width: 800px; margin: 0 auto; padding-bottom: 8rem; text-align: left; font-size: var(--step-1); line-height: 1.6; color: #ccc;">
+                    <p>Pizza Bros needed an identity as bold and energetic as their street-style slice shop. We
+                        developed a packaging design system that pairs vibrant orange and red colors with an edgy,
+                        modern typographic approach, contrasting against a sleek dark aesthetic perfectly fitted for
+                        modern urban dining.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.39/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

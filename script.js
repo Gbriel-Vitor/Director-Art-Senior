@@ -1,0 +1,376 @@
+// Initialize Lenis for Smooth Scrolling
+const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    direction: 'vertical',
+    gestureDirection: 'vertical',
+    smooth: true,
+    mouseMultiplier: 1,
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
+});
+
+function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
+
+// Update ScrollTrigger on Lenis scroll
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+});
+gsap.ticker.lagSmoothing(0, 0);
+
+// ---------- ANIMATIONS ----------
+
+// 1. Initial Hero Reveal Animation
+const heroTimeline = gsap.timeline();
+
+heroTimeline.to('.hero-title .word', {
+    y: 0,
+    duration: 1.2,
+    stagger: 0.1,
+    ease: "power4.out",
+    delay: 0.2
+})
+    .to(['.hero-sub', '.navbar'], {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: "power2.out"
+    }, "-=0.8");
+
+// Menu Logic
+const menuBtn = document.querySelector('.menu-btn');
+const menuCloseBtn = document.querySelector('.menu-close-btn');
+const menuOverlay = document.querySelector('.menu-overlay');
+let isMenuOpen = false;
+
+const menuTimeline = gsap.timeline({ paused: true });
+menuTimeline.set(menuOverlay, { visibility: 'visible', pointerEvents: 'auto' })
+    .to('.menu-overlay-bg', {
+        y: '0%',
+        duration: 0.8,
+        ease: 'power4.inOut'
+    })
+    .to('.menu-links a, .menu-close-btn', {
+        y: '0%',
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power4.out'
+    }, "-=0.2");
+
+gsap.set('.menu-close-btn', { opacity: 0 });
+
+function openMenu() {
+    isMenuOpen = true;
+    menuTimeline.play();
+    lenis.stop();
+}
+
+function closeMenu() {
+    isMenuOpen = false;
+    menuTimeline.reverse();
+    lenis.start();
+}
+
+// Event listeners will be delegated or bound later to survive cloneNode,
+// but let's just use event delegation on document for the menu button.
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.menu-btn')) {
+        openMenu();
+    }
+    if (e.target.closest('.menu-close-btn')) {
+        closeMenu();
+    }
+});
+
+const menuAnchorLinks = document.querySelectorAll('.menu-links a');
+menuAnchorLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href.startsWith('#')) {
+            e.preventDefault();
+            closeMenu();
+            setTimeout(() => {
+                lenis.scrollTo(href, { duration: 1.2 });
+            }, 800);
+        }
+    });
+});
+
+// 2. Custom Cursor Logic
+const cursor = document.querySelector('.cursor');
+const follower = document.querySelector('.cursor-follower');
+
+if (window.innerWidth > 768 && cursor && follower) {
+    let posX = 0, posY = 0;
+    let mouseX = 0, mouseY = 0;
+
+    gsap.to({}, {
+        duration: 0.016,
+        repeat: -1,
+        onRepeat: function () {
+            posX += (mouseX - posX) / 9;
+            posY += (mouseY - posY) / 9;
+
+            gsap.set(follower, {
+                css: {
+                    left: posX,
+                    top: posY
+                }
+            });
+            gsap.set(cursor, {
+                css: {
+                    left: mouseX,
+                    top: mouseY
+                }
+            });
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    const hoverElements = document.querySelectorAll('[data-cursor], a, .menu-btn');
+    hoverElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            const cursorText = el.getAttribute('data-cursor');
+            if (cursorText) {
+                follower.innerText = cursorText;
+            }
+            follower.classList.add('active');
+            cursor.style.transform = 'translate(-50%, -50%) scale(0)';
+        });
+
+        el.addEventListener('mouseleave', () => {
+            follower.innerText = '';
+            follower.classList.remove('active');
+            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+    });
+
+    // Magnetic Button Effect
+    const bindMagnetic = () => {
+        const magneticElements = document.querySelectorAll('.magnetic, .menu-btn, .case-trigger, .testimonial-card');
+        magneticElements.forEach((el) => {
+            if (el.dataset.magneticBound === 'true') return;
+            el.dataset.magneticBound = 'true';
+            el.addEventListener('mousemove', function (e) {
+                if (el.classList.contains('case-trigger') || el.classList.contains('testimonial-card')) return; // No magnetic pull on big cards
+                const boundingRect = el.getBoundingClientRect();
+                const relX = e.clientX - boundingRect.left;
+                const relY = e.clientY - boundingRect.top;
+
+                gsap.to(el, {
+                    x: (relX - boundingRect.width / 2) * 0.4,
+                    y: (relY - boundingRect.height / 2) * 0.4,
+                    duration: 0.6,
+                    ease: "power3.out"
+                });
+            });
+
+            el.addEventListener('mouseleave', function () {
+                if (el.classList.contains('case-trigger') || el.classList.contains('testimonial-card')) return;
+                gsap.to(el, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.6,
+                    ease: "elastic.out(1, 0.3)"
+                });
+            });
+
+            // Rebind Cursor Hover logic
+            el.addEventListener('mouseenter', () => {
+                const cursorText = el.getAttribute('data-cursor');
+                if (cursorText) {
+                    follower.innerText = cursorText;
+                }
+                follower.classList.add('active');
+                cursor.style.transform = 'translate(-50%, -50%) scale(0)';
+            });
+            el.addEventListener('mouseleave', () => {
+                follower.innerText = '';
+                follower.classList.remove('active');
+                cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+        });
+    }
+
+    bindMagnetic();
+
+    // Will call bindMagnetic() after opening modal so X close button works
+    window.bindCursorToModal = bindMagnetic;
+}
+
+// 3. ScrollTrigger Animations
+
+const workItems = gsap.utils.toArray('.work-item');
+workItems.forEach(item => {
+    gsap.fromTo(item,
+        { y: 100, opacity: 0 },
+        {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            scrollTrigger: {
+                trigger: item,
+                start: "top 85%",
+                toggleActions: "play none none reverse"
+            }
+        }
+    );
+
+    const img = item.querySelector('.placeholder-img');
+    if (img) {
+        gsap.to(img, {
+            y: 40,
+            ease: "none",
+            scrollTrigger: {
+                trigger: item,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true
+            }
+        });
+    }
+});
+
+// Marquee Infinity Scroll
+const marqueeInner = document.querySelector('.marquee-inner');
+if (marqueeInner) {
+    const clone = marqueeInner.innerHTML;
+    marqueeInner.innerHTML += clone;
+
+    gsap.to(marqueeInner, {
+        xPercent: -50,
+        repeat: -1,
+        duration: 20,
+        ease: "linear"
+    });
+}
+
+// Skills Marquee Infinity Scroll
+const skillsMarqueeInner = document.querySelector('.skills-marquee-inner');
+if (skillsMarqueeInner) {
+    const clone = skillsMarqueeInner.innerHTML;
+    skillsMarqueeInner.innerHTML += clone;
+    skillsMarqueeInner.innerHTML += clone; // add another copy for smoother loop
+
+    gsap.to(skillsMarqueeInner, {
+        xPercent: -33.33,
+        repeat: -1,
+        duration: 15,
+        ease: "linear"
+    });
+}
+
+
+// 4. Case Study Modal Logic
+const caseData = {
+    'trailing': {
+        title: 'Trailing Ahead',
+        category: 'Brand Identity / Web Design',
+        img: 'assets/trailing_ahead_1772659102280.png',
+        desc: 'Trailing Ahead is a technology company focused on delivering fast, secure, and modern web applications. The brand identity reflects their commitment to innovation, speed, and reliability. This project involved deep UX research, a robust web design system, and custom typography to establish a premium and modern tech aesthetic.'
+    },
+    'holiwork': {
+        title: 'Holiwork Stays',
+        category: 'Motion / Web',
+        img: 'assets/holiwork_stays_1772659128653.png',
+        desc: 'Holiwork Stays is a modern travel and accommodation platform for digital nomads. The goal was to provide an energetic and highly dynamic web experience that contrasts sharply with the premium dark background. Extensive motion graphics and micro-interactions ensure the user journey feels alive, inspiring the next remote work adventure.'
+    },
+    'smart': {
+        title: 'SMART PT',
+        category: 'Brand / UX',
+        img: 'assets/smart_pt_1772659243955.png',
+        desc: 'SMART PT is an advanced physical therapy application utilizing AI to monitor patient progress. A clinical yet extremely premium dark mode UI was devised, relying on glowing accent colors to guide users through the dashboard intuitively. The identity had to be highly professional, trustworthy, and technologically cutting-edge.'
+    },
+    'pizza': {
+        title: 'Pizza Bros',
+        category: 'Identity',
+        img: 'assets/pizza_bros_1772659408670.png',
+        desc: 'Pizza Bros needed an identity as bold and energetic as their street-style slice shop. We developed a packaging design system that pairs vibrant orange and red colors with an edgy, modern typographic approach, contrasting against a sleek dark aesthetic perfectly fitted for modern urban dining.'
+    }
+};
+
+const caseModal = document.querySelector('.case-modal');
+const caseClose = document.querySelector('.case-close');
+const caseModalBg = document.querySelector('.case-modal-bg');
+const caseModalContent = document.querySelector('.case-modal-content');
+let modalLenis;
+
+const extraImgs = [
+    'assets/case_mockup_1_1772660671425.png',
+    'assets/case_mockup_2_1772660683723.png'
+];
+
+const openCaseModal = (caseId) => {
+    const data = caseData[caseId];
+    if (!data) return;
+
+    // Populate data
+    document.querySelector('.case-title').innerHTML = data.title.split(' ').map(w => `<span class="line"><span class="word" style="transform:translateY(110%); display:inline-block;">${w}</span></span>`).join(' ');
+    document.querySelector('.case-category').innerText = data.category;
+    document.querySelector('#case-modal-img').src = data.img;
+    document.querySelector('#case-modal-text').innerText = data.desc;
+
+    // Inject extra images
+    document.querySelector('.case-modal-extra-images').innerHTML = extraImgs.map(img => `<img src="${img}" style="width:100%; border-radius:12px; opacity:0; transform:translateY(40px);" class="case-extra-img">`).join('');
+
+    // Reset scroll position of modal content
+    document.querySelector('.case-modal-content-wrapper').scrollTop = 0;
+
+    gsap.set(caseModal, { visibility: 'visible', pointerEvents: 'auto' });
+    gsap.set(caseModalContent, { opacity: 1, y: 0 }); // Ensure parent container is visible!
+
+    // Prepare animatable elements
+    gsap.set('.case-category, .detail-box h3, .detail-box p, .case-modal-image', { y: 40, opacity: 0 });
+    gsap.set('.case-back-btn-wrapper', { opacity: 0 });
+
+    const tl = gsap.timeline();
+    tl.to(caseModalBg, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+        .to(caseClose, { opacity: 1, duration: 0.3 }, "-=0.2")
+        .to('.case-title .word', { y: 0, duration: 0.8, stagger: 0.1, ease: 'power4.out' }, "-=0.2")
+        .to(['.case-category', '.detail-box h3', '.detail-box p', '.case-modal-image'], { y: 0, opacity: 1, duration: 0.6, stagger: 0.05, ease: 'power3.out' }, "-=0.6")
+        .to('.case-extra-img', { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, ease: 'power3.out' }, "-=0.4")
+        .to('.case-back-btn-wrapper', { opacity: 1, duration: 0.6 }, "-=0.2");
+
+    lenis.stop(); // Stop main page scrolling
+    if (window.bindCursorToModal) window.bindCursorToModal();
+};
+
+const closeCaseModal = () => {
+    const tl = gsap.timeline({
+        onComplete: () => {
+            gsap.set(caseModal, { visibility: 'hidden', pointerEvents: 'none' });
+            gsap.set('.case-title, .case-category', { y: 40 });
+            lenis.start(); // Resume main page scrolling
+        }
+    });
+
+    tl.to('.case-modal-content', { opacity: 0, y: -40, duration: 0.4, ease: 'power2.in' })
+        .to(caseClose, { opacity: 0, duration: 0.2 }, "-=0.2")
+        .to(caseModalBg, { opacity: 0, duration: 0.4, ease: 'power2.in' }, "-=0.2");
+};
+
+// Bind triggers
+document.querySelectorAll('.case-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+        const caseId = trigger.getAttribute('data-case');
+        openCaseModal(caseId);
+    });
+});
+
+caseClose.addEventListener('click', closeCaseModal);
