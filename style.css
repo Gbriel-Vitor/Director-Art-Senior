@@ -425,7 +425,9 @@ html.lenis {
 .works-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2.5rem;
+    column-gap: 2.5rem;
+    row-gap: 6rem;
+    /* Increased significantly to prevent sticking on scroll */
 }
 
 .work-item {
@@ -469,7 +471,8 @@ html.lenis {
 }
 
 .work-info {
-    margin-top: 1.5rem;
+    margin-top: 3rem;
+    /* Increased from 1.5rem to give the image parallax room to shift down without covering text */
 }
 
 .work-info h3 {
@@ -657,6 +660,8 @@ html.lenis {
     text-align: center;
     background-color: #000;
     border-top: 1px solid #111;
+    padding-bottom: 8rem;
+    /* Added to keep it from sticking to the bottom edge */
 }
 
 .cta {
@@ -693,6 +698,8 @@ html.lenis {
     display: flex;
     gap: 2rem;
     align-items: center;
+    justify-content: center;
+    /* Center horizontally on desktop too */
 }
 
 .social-links a {
@@ -722,16 +729,152 @@ html.lenis {
     padding: 1rem;
 }
 
+/* About Page Specific Styles */
+.about-page-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    padding-top: 15vh;
+}
+
+.about-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+}
+
+.about-image {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: #111;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.about-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    filter: grayscale(100%);
+    transition: filter 0.5s ease;
+}
+
+.about-image:hover img {
+    filter: grayscale(0%);
+}
+
+.about-text h1 {
+    font-size: var(--step-4);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    line-height: 1.1;
+}
+
+.about-text p {
+    font-size: var(--step-0);
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.experience-section {
+    padding: 8rem 4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.experience-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    padding: 3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.experience-year {
+    font-size: var(--step-2);
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.experience-details h3 {
+    font-size: var(--step-1);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.experience-details h4 {
+    font-size: var(--step--1);
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+}
+
+.experience-details p {
+    color: #aaa;
+    line-height: 1.6;
+    font-size: var(--step-0);
+}
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+
+    .section,
+    .experience-section {
+        padding: 5rem 2rem;
+    }
+
+    .navbar {
+        padding: 1.5rem 2rem;
+    }
+
+    .works-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .case-details-grid {
+        gap: 2rem !important;
+    }
+
+    .about-content-grid {
+        gap: 3rem;
+    }
+
+    .social-links {
+        gap: 1rem;
+    }
+
+    .hero-title {
+        font-size: var(--step-4);
+    }
+
+    .marquee-inner {
+        font-size: var(--step-4);
+    }
+
+    .case-close {
+        left: 2rem;
+    }
+}
+
+/* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
-    .nav-location {
-        display: none;
+
+    .nav-location,
+    .nav-actions a {
+        display: none !important;
     }
 
     .navbar {
         padding: 1.5rem;
     }
 
-    .section {
+    .section,
+    .experience-section {
         padding: 4rem 1.5rem;
     }
 
@@ -756,10 +899,58 @@ html.lenis {
 
     .cursor,
     .cursor-follower {
-        display: none;
+        display: none !important;
     }
 
     body {
         cursor: auto;
+    }
+
+    .about-content-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .experience-item {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 2rem 0;
+    }
+
+    .case-modal-content {
+        padding: 0 1rem;
+    }
+
+    .case-title {
+        font-size: var(--step-3) !important;
+    }
+
+    .case-details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+        margin-bottom: 3rem !important;
+        padding-top: 2rem !important;
+    }
+
+    .case-close {
+        top: 1.5rem;
+        left: 1.5rem;
+        font-size: var(--step--1);
+    }
+
+    .big-link {
+        font-size: var(--step-3);
+        word-break: break-all;
+    }
+
+    .social-links {
+        flex-direction: column;
+        align-items: center;
+        /* Ensures text and icons are centered */
+        gap: 1.5rem;
+    }
+
+    .menu-links a {
+        font-size: var(--step-4);
     }
 }

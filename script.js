@@ -235,7 +235,7 @@ workItems.forEach(item => {
     const img = item.querySelector('.placeholder-img');
     if (img) {
         gsap.to(img, {
-            y: 40,
+            y: 20, // Reduced from 40 to prevent overlapping with the text below
             ease: "none",
             scrollTrigger: {
                 trigger: item,
