@@ -439,3 +439,8 @@ document.querySelectorAll('.case-trigger').forEach(trigger => {
 });
 
 caseClose.addEventListener('click', closeCaseModal);
+
+// Recalculate ScrollTrigger positions after all heavy images load
+window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
+});

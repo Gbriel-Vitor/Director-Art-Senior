@@ -301,6 +301,11 @@
                 window.location.href = link.getAttribute('href');
             });
         });
+
+        // Recalculate GSAP for the gallery items
+        window.addEventListener("load", () => {
+            ScrollTrigger.refresh();
+        });
     </script>
 </body>
 </html>
